@@ -55,9 +55,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": "YourNewPassword123",  # The one from the CloudShell command
+        "HOST": "database-1.cluster-cy1uo6a4k5tt.us-east-1.rds.amazonaws.com",
+        "PORT": "5432",
     }
 }
 
