@@ -1,0 +1,158 @@
+{% extends 'store/base.html' %}
+{% block title %}Order #{{ order.id }} — Hello Mart{% endblock %}
+{% block content %}
+
+<div class="container" style="padding-top: 48px; padding-bottom: 64px;">
+
+  <div style="margin-bottom: 32px;">
+    <a href="{% url 'order_list' %}" style="color: #8a8a8a; text-decoration: none; font-size: 14px;">← Back to Orders</a>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 40px;">
+    <div>
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 8px;">Order #{{ order.id }}</h1>
+      <p style="color: #8a8a8a;">Placed on {{ order.created_at|date:"F d, Y \a\t g:i A" }}</p>
+    </div>
+    <span class="badge status-{{ order.status }}" style="padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+      {{ order.get_status_display }}
+    </span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: start;">
+
+    <!-- ORDER ITEMS -->
+    <div>
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="padding: 20px 24px; border-bottom: 1px solid #2a2a2a;">
+          <div style="font-family: 'Playfair Display', serif; font-size: 18px;">Order Items</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 50px; height: 50px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                    {% if item.product.image %}
+                      <img src="{{ item.product.image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                      <span style="font-size: 20px;">🛍️</span>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <div style="font-weight: 600; margin-bottom: 2px;">{{ item.product.name }}</div>
+                    <a href="{% url 'product_detail' item.product.slug %}" style="font-size: 12px; color: #c9a84c; text-decoration: none;">View Product →</a>
+                  </div>
+                </div>
+              </td>
+              <td style="color: #8a8a8a;">₹{{ item.price }}</td>
+              <td>{{ item.quantity }}</td>
+              <td style="font-weight: 700; font-family: 'Playfair Display', serif;">₹{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SHIPPING INFO -->
+      <div class="card" style="padding: 24px;">
+        <div style="font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a;">
+          Shipping Information
+        </div>
+        <div style="display: grid; gap: 16px;">
+          <div style="display: flex; gap: 12px;">
+            <span style="font-size: 13px; color: #8a8a8a; min-width: 100px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Customer</span>
+            <span style="font-size: 14px;">{{ order.user.get_full_name|default:order.user.username }}</span>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <span style="font-size: 13px; color: #8a8a8a; min-width: 100px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Phone</span>
+            <span style="font-size: 14px;">{{ order.phone }}</span>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <span style="font-size: 13px; color: #8a8a8a; min-width: 100px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Address</span>
+            <span style="font-size: 14px; line-height: 1.6;">{{ order.shipping_address }}</span>
+          </div>
+          {% if order.notes %}
+          <div style="display: flex; gap: 12px;">
+            <span style="font-size: 13px; color: #8a8a8a; min-width: 100px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Notes</span>
+            <span style="font-size: 14px; color: #8a8a8a;">{{ order.notes }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY SIDEBAR -->
+    <div>
+      <div class="card" style="padding: 24px; margin-bottom: 20px;">
+        <div style="font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a;">
+          Order Summary
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; font-size: 14px;">
+            <span style="color: #8a8a8a;">Subtotal</span>
+            <span>₹{{ order.total_price }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px;">
+            <span style="color: #8a8a8a;">Shipping</span>
+            <span style="color: #4caf7a;">Free</span>
+          </div>
+          <div style="height: 1px; background: #2a2a2a;"></div>
+          <div style="display: flex; justify-content: space-between; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;">
+            <span>Total</span>
+            <span style="color: #c9a84c;">₹{{ order.total_price }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS TRACKER -->
+      <div class="card" style="padding: 24px;">
+        <div style="font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 20px;">Order Progress</div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; background: {% if order.status == 'pending' %}#c9a84c{% elif order.status == 'cancelled' %}#2a2a2a{% else %}#4caf7a{% endif %}; color: {% if order.status == 'pending' %}#000{% elif order.status == 'cancelled' %}#8a8a8a{% else %}#fff{% endif %};">
+            {% if order.status in 'processing,shipped,delivered' %}✓{% else %}1{% endif %}
+          </div>
+          <div style="font-size: 14px; font-weight: {% if order.status == 'pending' %}600{% else %}400{% endif %}; color: {% if order.status == 'pending' %}#f0ece4{% else %}#8a8a8a{% endif %};">Order Placed</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; background: {% if order.status == 'processing' %}#c9a84c{% elif order.status in 'shipped,delivered' %}#4caf7a{% else %}#2a2a2a{% endif %}; color: {% if order.status == 'processing' %}#000{% elif order.status in 'shipped,delivered' %}#fff{% else %}#8a8a8a{% endif %};">
+            {% if order.status in 'shipped,delivered' %}✓{% else %}2{% endif %}
+          </div>
+          <div style="font-size: 14px; font-weight: {% if order.status == 'processing' %}600{% else %}400{% endif %}; color: {% if order.status == 'processing' %}#f0ece4{% else %}#8a8a8a{% endif %};">Processing</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; background: {% if order.status == 'shipped' %}#c9a84c{% elif order.status == 'delivered' %}#4caf7a{% else %}#2a2a2a{% endif %}; color: {% if order.status == 'shipped' %}#000{% elif order.status == 'delivered' %}#fff{% else %}#8a8a8a{% endif %};">
+            {% if order.status == 'delivered' %}✓{% else %}3{% endif %}
+          </div>
+          <div style="font-size: 14px; font-weight: {% if order.status == 'shipped' %}600{% else %}400{% endif %}; color: {% if order.status == 'shipped' %}#f0ece4{% else %}#8a8a8a{% endif %};">Shipped</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; background: {% if order.status == 'delivered' %}#4caf7a{% else %}#2a2a2a{% endif %}; color: {% if order.status == 'delivered' %}#fff{% else %}#8a8a8a{% endif %};">
+            {% if order.status == 'delivered' %}✓{% else %}4{% endif %}
+          </div>
+          <div style="font-size: 14px; font-weight: {% if order.status == 'delivered' %}600{% else %}400{% endif %}; color: {% if order.status == 'delivered' %}#f0ece4{% else %}#8a8a8a{% endif %};">Delivered</div>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <a href="{% url 'product_list' %}" class="btn btn-primary" style="justify-content: center; display: flex;">Continue Shopping</a>
+        <a href="{% url 'order_list' %}" class="btn btn-outline" style="justify-content: center; display: flex;">All Orders</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

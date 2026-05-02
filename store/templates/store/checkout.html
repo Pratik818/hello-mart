@@ -1,0 +1,127 @@
+{% extends 'store/base.html' %}
+{% block title %}Checkout — Hello Mart{% endblock %}
+{% block content %}
+
+<div class="container" style="padding-top: 48px; padding-bottom: 64px;">
+  <div class="page-header">
+    <h1>Checkout</h1>
+    <p>Complete your order</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: start;">
+    <!-- FORM -->
+    <div>
+      <form method="post" id="razorpay-form">
+        {% csrf_token %}
+        
+        <!-- Hidden Inputs for Razorpay -->
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+
+        <div class="card" style="padding: 32px; margin-bottom: 24px;">
+          <div style="font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a;">
+            Shipping Information
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+              <label style="display:block; font-size:12px; font-weight:600; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">First Name</label>
+              <input type="text" value="{{ user.first_name }}" disabled style="width:100%; background:#1e1e1e; border:1px solid #2a2a2a; color:#f0ece4; padding:11px 14px; border-radius:4px; font-size:15px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:12px; font-weight:600; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Last Name</label>
+              <input type="text" value="{{ user.last_name }}" disabled style="width:100%; background:#1e1e1e; border:1px solid #2a2a2a; color:#f0ece4; padding:11px 14px; border-radius:4px; font-size:15px;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ form.phone.label }}</label>
+            {{ form.phone }}
+          </div>
+          <div class="form-group">
+            <label>{{ form.shipping_address.label }}</label>
+            {{ form.shipping_address }}
+          </div>
+          <div class="form-group">
+            <label>{{ form.notes.label }}</label>
+            {{ form.notes }}
+          </div>
+        </div>
+
+        <div class="card" style="padding: 32px; margin-bottom: 24px;">
+          <div style="font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a;">
+            Payment Method
+          </div>
+          <div style="background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: #c9a84c; display: flex; align-items: center; justify-content: center;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #000;"></div>
+            </div>
+            <div>
+              <div style="font-weight: 600; margin-bottom: 2px;">Razorpay Secure Payment</div>
+              <div style="font-size: 13px; color: #8a8a8a;">UPI, Cards, and Netbanking supported</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Changed button ID to 'pay-btn' and type to 'button' -->
+        <button type="button" id="pay-btn" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 16px; display: flex;">
+          🎉 Pay Now — ₹{{ cart.total }}
+        </button>
+      </form>
+    </div>
+
+    <!-- ORDER SUMMARY (Design remains exactly the same as yours) -->
+    <div>
+      <div class="card" style="padding: 24px;">
+        <div style="font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a;">
+          Your Order
+        </div>
+        {% for item in cart.cart_items.all %}
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a;">
+            <div style="flex: 1;">
+                <div style="font-size: 14px; font-weight: 600;">{{ item.product.name }}</div>
+                <div style="font-size: 13px; color: #8a8a8a;">Qty: {{ item.quantity }}</div>
+            </div>
+            <div style="font-weight: 700; color: #c9a84c;">₹{{ item.subtotal }}</div>
+        </div>
+        {% endfor %}
+        <div style="display: flex; justify-content: space-between; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;">
+          <span>Total</span>
+          <span style="color: #c9a84c;">₹{{ cart.total }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay Integration Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "Hello Mart",
+        "description": "Secure Payment for Order",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response){
+            // Set values to hidden fields
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            // Submit form
+            document.getElementById('razorpay-form').submit();
+        },
+        "prefill": {
+            "name": "{{ user.get_full_name }}",
+            "email": "{{ user.email }}"
+        },
+        "theme": { "color": "#c9a84c" }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('pay-btn').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+
+{% endblock %}

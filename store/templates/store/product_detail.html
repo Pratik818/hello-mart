@@ -1,0 +1,132 @@
+{% extends 'store/base.html' %}
+{% block title %}{{ product.name }} — Hello Mart{% endblock %}
+{% block content %}
+
+<div class="container" style="padding-top: 48px; padding-bottom: 64px;">
+
+  <div style="margin-bottom: 24px; font-size: 13px; color: #8a8a8a;">
+    <a href="{% url 'home' %}" style="color: #8a8a8a; text-decoration: none;">Home</a>
+    <span style="margin: 0 8px;">›</span>
+    <a href="{% url 'product_list' %}" style="color: #8a8a8a; text-decoration: none;">Shop</a>
+    {% if product.category %}
+    <span style="margin: 0 8px;">›</span>
+    <a href="{% url 'product_list' %}?category={{ product.category.slug }}" style="color: #8a8a8a; text-decoration: none;">{{ product.category.name }}</a>
+    {% endif %}
+    <span style="margin: 0 8px;">›</span>
+    <span style="color: #f0ece4;">{{ product.name }}</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;">
+
+    <!-- IMAGE -->
+    <div>
+      <div style="background: #141414; border: 1px solid #2a2a2a; border-radius: 4px; overflow: hidden; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+        {% else %}
+          <div style="font-size: 120px;">🛍️</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div>
+      {% if product.category %}
+      <div style="font-size: 11px; letter-spacing: 3px; color: #c9a84c; text-transform: uppercase; margin-bottom: 12px; font-weight: 600;">{{ product.category.name }}</div>
+      {% endif %}
+
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 20px;">{{ product.name }}</h1>
+
+      <div style="font-family: 'Playfair Display', serif; font-size: 32px; color: #c9a84c; font-weight: 700; margin-bottom: 24px;">₹{{ product.price }}</div>
+
+      <p style="color: #8a8a8a; line-height: 1.8; margin-bottom: 28px; font-size: 15px;">{{ product.description }}</p>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+        {% if product.in_stock %}
+          <span class="badge badge-success">✓ In Stock</span>
+          <span style="font-size: 13px; color: #8a8a8a;">{{ product.stock }} units available</span>
+        {% else %}
+          <span class="badge badge-danger">✕ Out of Stock</span>
+        {% endif %}
+      </div>
+
+      <div style="height: 1px; background: #2a2a2a; margin-bottom: 28px;"></div>
+
+      {% if product.in_stock %}
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'add_to_cart' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 15px;">
+              🛒 Add to Cart
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 15px; display: flex;">
+            Login to Add to Cart
+          </a>
+        {% endif %}
+      {% else %}
+        <button class="btn" disabled style="width: 100%; justify-content: center; padding: 16px; background: #2a2a2a; color: #8a8a8a; cursor: not-allowed;">
+          Out of Stock
+        </button>
+      {% endif %}
+
+      <div style="margin-top: 32px; padding: 20px; background: #141414; border: 1px solid #2a2a2a; border-radius: 4px;">
+        <div style="font-size: 12px; letter-spacing: 2px; color: #8a8a8a; text-transform: uppercase; margin-bottom: 12px; font-weight: 600;">Product Details</div>
+        <div style="display: grid; gap: 8px; font-size: 14px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #8a8a8a;">Category</span>
+            <span>{{ product.category.name|default:"—" }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #8a8a8a;">Availability</span>
+            <span style="color: {% if product.in_stock %}#4caf7a{% else %}#e05555{% endif %};">
+              {% if product.in_stock %}Available{% else %}Unavailable{% endif %}
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #8a8a8a;">Added</span>
+            <span>{{ product.created_at|date:"M d, Y" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED -->
+  {% if related %}
+  <div style="margin-top: 80px;">
+    <div style="margin-bottom: 32px; display: flex; align-items: center; gap: 16px;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 26px;">Related Products</h2>
+      <div style="flex: 1; height: 1px; background: #2a2a2a;"></div>
+    </div>
+    <div class="product-grid">
+      {% for p in related %}
+      <div class="card product-card">
+        <a href="{% url 'product_detail' p.slug %}">
+          {% if p.image %}
+            <img src="{{ p.image.url }}" alt="{{ p.name }}">
+          {% else %}
+            <div class="product-img">🛍️</div>
+          {% endif %}
+        </a>
+        <div class="product-info">
+          <a href="{% url 'product_detail' p.slug %}" class="product-name">{{ p.name }}</a>
+          <div class="product-footer">
+            <span class="price">₹{{ p.price }}</span>
+            {% if p.in_stock %}
+              <form method="post" action="{% url 'add_to_cart' p.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

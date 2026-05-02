@@ -1,0 +1,92 @@
+{% extends 'store/base.html' %}
+{% block title %}Shop — Hello Mart{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="page-header">
+    <h1>{% if current_category %}{{ current_category.name }}{% elif search_q %}Results for "{{ search_q }}"{% else %}All Products{% endif %}</h1>
+    <p>{{ products.count }} product{{ products.count|pluralize }} found</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: start;">
+
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="card" style="padding: 20px;">
+        <div style="font-size: 11px; letter-spacing: 2px; color: #8a8a8a; text-transform: uppercase; margin-bottom: 16px; font-weight: 600;">Categories</div>
+        <ul style="list-style: none;">
+          <li style="margin-bottom: 4px;">
+            <a href="{% url 'product_list' %}"
+               style="display: block; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; color: {% if not current_category %}#c9a84c{% else %}#8a8a8a{% endif %}; background: {% if not current_category %}rgba(201,168,76,0.1){% else %}transparent{% endif %}; transition: all 0.2s;"
+               onmouseover="this.style.color='#c9a84c'"
+               onmouseout="this.style.color='{% if not current_category %}#c9a84c{% else %}#8a8a8a{% endif %}'">
+              All Products
+            </a>
+          </li>
+          {% for cat in categories %}
+          <li style="margin-bottom: 4px;">
+            <a href="{% url 'product_list' %}?category={{ cat.slug }}"
+               style="display: block; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-size: 14px; color: {% if current_category.slug == cat.slug %}#c9a84c{% else %}#8a8a8a{% endif %}; background: {% if current_category.slug == cat.slug %}rgba(201,168,76,0.1){% else %}transparent{% endif %}; transition: all 0.2s;"
+               onmouseover="this.style.color='#c9a84c'"
+               onmouseout="this.style.color='{% if current_category.slug == cat.slug %}#c9a84c{% else %}#8a8a8a{% endif %}'">
+              {{ cat.name }}
+              <span style="float:right; font-size: 11px;">{{ cat.products.count }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </aside>
+
+    <!-- PRODUCTS -->
+    <div>
+      {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+        <div class="card product-card">
+          <a href="{% url 'product_detail' product.slug %}">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+              <div class="product-img">🛍️</div>
+            {% endif %}
+          </a>
+          <div class="product-info">
+            <div class="product-cat">{{ product.category.name|default:"Uncategorized" }}</div>
+            <a href="{% url 'product_detail' product.slug %}" class="product-name">{{ product.name }}</a>
+            <p style="color: #8a8a8a; font-size: 13px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ product.description }}</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <span class="price">₹{{ product.price }}</span>
+              {% if product.in_stock %}
+                <span class="badge badge-success">In Stock ({{ product.stock }})</span>
+              {% else %}
+                <span class="badge badge-danger">Out of Stock</span>
+              {% endif %}
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 8px;">
+              <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline btn-sm" style="flex:1; justify-content: center;">View</a>
+              {% if product.in_stock %}
+                <form method="post" action="{% url 'add_to_cart' product.id %}" style="flex:1;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary btn-sm" style="width:100%; justify-content:center;">Add to Cart</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        <h2>No Products Found</h2>
+        <p>Try a different search or browse all categories.</p>
+        <a href="{% url 'product_list' %}" class="btn btn-outline">Browse All</a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

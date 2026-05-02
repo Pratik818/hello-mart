@@ -1,0 +1,61 @@
+{% extends 'store/base.html' %}
+{% block title %}Login — Hello Mart{% endblock %}
+{% block content %}
+
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 48px 24px;">
+  <div style="width: 100%; max-width: 420px;">
+
+    <div style="text-align: center; margin-bottom: 40px;">
+      <div style="font-family: 'Playfair Display', serif; font-size: 28px; color: #c9a84c; letter-spacing: 4px; margin-bottom: 8px;">Hello Mart</div>
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin-bottom: 8px;">Welcome Back</h1>
+      <p style="color: #8a8a8a; font-size: 14px;">Sign in to your account to continue</p>
+    </div>
+
+    <div class="card" style="padding: 36px;">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="id_username">Username</label>
+          <input type="text" name="username" id="id_username" autofocus required
+            placeholder="Enter your username"
+            style="width:100%; background:#1e1e1e; border:1px solid #2a2a2a; color:#f0ece4; padding:12px 14px; font-size:15px; font-family:inherit; border-radius:4px; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#2a2a2a'">
+        </div>
+
+        <div class="form-group">
+          <label for="id_password">
+            Password
+            <a href="#" style="float: right; font-size: 12px; color: #c9a84c; text-decoration: none; font-weight: 400; text-transform: none; letter-spacing: 0;">Forgot?</a>
+          </label>
+          <input type="password" name="password" id="id_password" required
+            placeholder="Enter your password"
+            style="width:100%; background:#1e1e1e; border:1px solid #2a2a2a; color:#f0ece4; padding:12px 14px; font-size:15px; font-family:inherit; border-radius:4px; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#2a2a2a'">
+        </div>
+
+        {% if form.non_field_errors %}
+        <div style="background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.3); border-radius: 4px; padding: 12px; margin-bottom: 20px; color: #e05555; font-size: 14px;">
+          {{ form.non_field_errors.0 }}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px; display: flex; margin-top: 8px;">
+          Sign In →
+        </button>
+      </form>
+    </div>
+
+    <div style="text-align: center; margin-top: 24px; font-size: 14px; color: #8a8a8a;">
+      Don't have an account?
+      <a href="{% url 'register' %}" style="color: #c9a84c; text-decoration: none; font-weight: 600;">Create one →</a>
+    </div>
+
+    <!-- DEMO HINT -->
+    <div style="margin-top: 20px; background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; padding: 14px; text-align: center; font-size: 13px; color: #8a8a8a;">
+      💡 Admin panel: <a href="/admin/" style="color: #c9a84c; text-decoration: none;">/admin/</a> — run <code style="background: #1e1e1e; padding: 2px 6px; border-radius: 2px; color: #f0ece4;">python manage.py createsuperuser</code>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
