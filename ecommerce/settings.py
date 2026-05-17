@@ -8,8 +8,7 @@ SECRET_KEY = 'django-insecure-ecommerce-dev-key-change-in-production-xyz123'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "baritone-symphony-kilobyte.ngrok-free.dev",
+    "*",
 ]
 
 
