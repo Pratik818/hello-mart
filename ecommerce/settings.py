@@ -55,19 +55,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 # settings.py
+# settings.py
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME", "postgres"),
-        "USER": os.environ.get("DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),  # Reads from environment
-        "HOST": os.environ.get(
-            "DB_HOST", "database-1.cluster-cy1uo6a4k5tt.us-east-1.rds.amazonaws.com"
-        ),
-        "PORT": os.environ.get("DB_PORT", "5432"),
-        "OPTIONS": {
-            "sslmode": "require",
-        },
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 AUTH_PASSWORD_VALIDATORS = [
